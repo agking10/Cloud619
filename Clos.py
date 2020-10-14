@@ -8,14 +8,14 @@ class Clos(Topo):
 	EdgeSwitchList = []
 	Hosts = []
 
-	def __init__(self, k, host_per_switch, host_edge_bw=1, edge_agg_bw=1, agg_core_bw=1):
+	def __init__(self, k, host_per_switch):
 		self.pods = k
 		self.nCoreSwitch = (k / 2)**2
 		self.nAggSwitch = k**2 / 2
 		self.nEdgeSwitch = k**2 / 2
 		self.host_per_switch = host_per_switch
 		self.nHosts = self.nEdgeSwitch * host_per_switch
-		self.netRates = {'host_edge_bw': host_edge_bw, 'edge_agg_bw': edge_agg_bw, 'agg_core_bw': agg_core_bw}
+		self.netRates = {'host_edge_bw': 1, 'edge_agg_bw': 1, 'agg_core_bw': 1}
 
 		Topo.__init__(self)
 		
@@ -83,3 +83,5 @@ class Clos(Topo):
 					self.Hosts[i * self.host_per_switch + j],
 					**options
 					)
+
+topos = {'Clos': (lambda k, n: Clos(k, n))}
