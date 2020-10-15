@@ -1,5 +1,10 @@
+
 from mininet.topo import Topo
-import os
+from mininet.net import Mininet
+from mininet.node import Controller
+from mininet.cli import CLI
+from mininet.log import setLogLevel, info
+import sys
 
 # To test the network, run command (from same directory):
 # sudo mn --custom ./Clos.py --topo Clos,k,n --test pingall
@@ -87,3 +92,20 @@ class Clos(Topo):
                     )
 
 topos = {'Clos': (lambda k, n: Clos(k, n))}
+
+#Create a network
+def createClos(k, n):
+    topo = Clos(k, n)
+    net = Mininet(topo=topo, controller=Controller)
+    net.addController('c0')
+    net.start()
+    CLI(net)
+    net.stop()
+    
+
+
+if __name__ == '__main__':
+    k = sys.argv[1]
+    n = sys.argv[2]
+    setLogLevel('info')
+    createClos(int(k), int(n))
