@@ -1,6 +1,8 @@
 from mininet.topo import Topo
 import os
 
+# To test the network, run command (from same directory):
+# sudo mn --custom ./Clos.py --topo Clos,k,n --test pingall
 class Clos(Topo):
 
     CoreSwitchList = []
