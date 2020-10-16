@@ -2,6 +2,7 @@
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.node import Controller
+from mininet.node import OVSSwitch
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 import sys
@@ -24,7 +25,7 @@ class Clos(Topo):
         self.nHosts = self.nEdgeSwitch * host_per_switch
         self.netRates = {'host_edge_bw': 1, 'edge_agg_bw': 1, 'agg_core_bw': 1}
 
-        Topo.__init__(self)
+        Topo.__init__(self) # , switch=OVSSwitch)
         
         self.addNodes()
         self.addLinks()
@@ -97,7 +98,7 @@ topos = {'Clos': (lambda k, n: Clos(k, n))}
 def createClos(k, n):
     topo = Clos(k, n)
     net = Mininet(topo=topo, controller=Controller)
-    net.addController('c0')
+    # net.addController('c0')
     net.start()
     CLI(net)
     net.stop()
