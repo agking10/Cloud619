@@ -15,6 +15,6 @@ In order to create a fat tree topology, run the following command:
 
 ======Running the controller========
 
-To run a controller with ecmp load balancing, run the following command from the Cloud619 directory:
+To run a controller with ecmp load balancing, run the following command from the Cloud619 directory in a separate window:
 
 	~/pox/pox.py ECMP --topo=ft,4 --routing=hashed --mode=reactive
