@@ -2,7 +2,6 @@
 
 from mininet.util import makeNumeric
 
-from routing import STStructuredRouting, RandomStructuredRouting
 from routing import HashedStructuredRouting
 
 
@@ -32,9 +31,7 @@ def buildTopo( topo, topos ):
 
 DEF_ROUTING = 'st'
 ROUTING = {
-    'st': STStructuredRouting,
-    'random': RandomStructuredRouting,
-    'hashed': HashedStructuredRouting
+        'hashed':HashedStructuredRouting
 }
 
 def getRouting( routing_type, topo ):
