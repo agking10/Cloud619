@@ -219,6 +219,11 @@ class StructuredTopo(Topo):
 #            plt.show()
 
 
+
+#class SimpleTopo(structuredTopo):
+#    def __init__(self):
+
+
 class FatTreeTopo(StructuredTopo):
     '''Three-layer homogeneous Fat Tree.
 
@@ -231,7 +236,7 @@ class FatTreeTopo(StructuredTopo):
     LAYER_HOST = 3
 
     class FatTreeNodeID(NodeID):
-        '''Fat Tree-specific node.'''
+        '''Fat Tre:e-specific node.'''
 
         def __init__(self, pod = 0, sw = 0, host = 0, dpid = None, name = None):
             '''Create FatTreeNodeID object from custom params.
