@@ -18,10 +18,10 @@ Next, type
 =======Creating a fat tree network=======
 In order to create a fat tree topology, run the following command:
 
-	sudo mn --custom ~/Cloud619/mn.py --topo ft,4 --controller=remote --mac
+	sudo sh create_network.sh
 
 ======Running the controller========
 
 To run a controller with ecmp load balancing, run the following command from the Cloud619 directory in a separate window:
 
-	~/pox/pox.py ECMP --topo=ft,4 --routing=hashed --mode=reactive
+	sudo sh start_ecmp.sh
