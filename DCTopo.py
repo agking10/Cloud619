@@ -86,7 +86,7 @@ class FatTreeTopo(Topo):
         self.id_gen = FatTreeNode
         self.numPods = k
         self.aggPerPod = k // 2
-
+        
         self.hostList = []
         self.edgeList = []
         self.aggList = []
@@ -116,8 +116,7 @@ class FatTreeTopo(Topo):
                     host_opts = self.def_nopts(self.LAYER_HOST, host_id)
                     self.hostList.append(host_id)
                     self.addHost(host_id, **host_opts)
-                    self.addLink(host_id, edge_id, host_port, edge_port)
-                    
+                    self.addLink(host_id, edge_id, host_port, edge_port, bw=speed)
                     edge_port += 1
                 
                 edge_port = 3        
@@ -127,7 +126,7 @@ class FatTreeTopo(Topo):
                     agg_opts = self.def_nopts(self.LAYER_AGG, agg_id)
                     self.aggList.append(agg_id)
                     self.addSwitch(agg_id, **agg_opts)
-                    self.addLink(edge_id, agg_id, edge_port, agg_port)
+                    self.addLink(edge_id, agg_id, edge_port, agg_port, bw=speed)
                     edge_port += 1
                 agg_port += 1
 
@@ -142,8 +141,17 @@ class FatTreeTopo(Topo):
                     core_opts = self.def_nopts(self.LAYER_CORE, core_id)
                     self.coreList.append(core_id)
                     self.addSwitch(core_id, **core_opts)
-                    self.addLink(core_id, agg_id, p+1, agg_port)
+                    self.addLink(core_id, agg_id, p+1, agg_port, bw=speed)
                     agg_port += 1
+        self.create_weights()
+        print(self.weights)
+
+    def create_weights(self):
+        weights = {}
+        for link in self.links():
+            linkWeight = self.linkInfo(*link)['bw']
+            weights[link] = linkWeight
+        self.weights = weights
 
     def layer_nodes(self, layer):
     #return list of node names in specified layer
