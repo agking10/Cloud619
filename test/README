@@ -1,0 +1,11 @@
+Unit testing module.
+
+In order for python unittest discovery to work, all unittest files should be in this test package
+and should be named "test_<TestFile>.py".
+
+To run all tests from the base Cloud619 directory:
+    $ python -m unittest -vb
+Or to run a specific set of tests/class/method test:
+    $ python -m unittest -vb test.<TestFileName>
+    $ python -m unittest -vb test.<TestFileName>.<ClassName>
+    $ python -m unittest -vb test.<TestFileName>.<ClassName>.<MethodName>

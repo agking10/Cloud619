@@ -124,7 +124,7 @@ class DCController(EventMixin):
             switch_Hosts = []
             for host in t.layer_nodes(t.LAYER_HOST):
                 if((host[0] == sw_name[0])and (host[2] == sw_name[2])):
-        	    switch_Hosts.append(host)
+        	        switch_Hosts.append(host)
             for host in switch_Hosts:
                 sw_port, host_port = t.port(sw_name, host)
                 if sw != dpid or (sw == dpid and in_port != sw_port):
