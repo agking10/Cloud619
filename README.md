@@ -21,6 +21,10 @@ To run a controller with ecmp load balancing, run the following command from the
 
 	sudo sh start_ecmp.sh
 
+To run a controller with wcmp load balancing, run this command:
+
+	sudo sh start_wcmp.sh
+
 You must start the controller before building the network.
 
 =======Creating a fat tree network=======
