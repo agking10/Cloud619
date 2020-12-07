@@ -48,6 +48,10 @@ def ECMPHelperFunction(topo,src,dst):
     for switch in topo.graphDic[src].keys():
         if switch in agg_layer:
             agg_switch.append(switch)
+    if len(agg_switch) == 0:
+        print src 
+        print(agg_layer)
+        print(topo.graphDic[src].keys())
     ind = hash(src + dst) % len(agg_switch)
     agg_up = agg_switch[ind]
 

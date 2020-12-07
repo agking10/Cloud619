@@ -143,6 +143,10 @@ def iperfTrafficGen(args, hosts, net):
         h1 = s[1] + '_' + s[2] + '_' + s[3]
         h2 = d[1] + '_' + d[2] + '_' + d[3]
 
+        if h1 not in net.nameToNode or h2 not in net.nameToNode:
+            break
+
+
         src_host, dest_host = net.get(h1, h2)
         d_out = dest_host.cmd("iperf -s -p 12345 -t " + str(t) + " &")
         s_out = src_host.cmd("iperf -c "+ dest +" -p 12345 -t " + str(t))

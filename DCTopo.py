@@ -7,8 +7,8 @@ Fat tree topology for data center networking
 '''
 
 from mininet.topo import Topo
-import numpy as np
 import math
+import random
 
 class FatTreeNode(object):
     def __init__(self, pod = 0, sw = 0, host = 0, dpid = None, name = None):
@@ -80,7 +80,7 @@ class FatTreeTopo(Topo):
         # print d
         return d 
 
-    def __init__(self, k = 4, bw_low = 0.5, bw_high = 1.01):
+    def __init__(self, k = 4, bw_low = 0.99, bw_high = 1.0):
         super(FatTreeTopo, self).__init__()
 
         self.k = k
@@ -101,7 +101,7 @@ class FatTreeTopo(Topo):
 
         host_port = 1
         
-        np.random.seed(0)
+        random.seed(0)
       
         for p in pods:
             agg_port = 1
@@ -117,7 +117,7 @@ class FatTreeTopo(Topo):
                     host_opts = self.def_nopts(self.LAYER_HOST, host_id)
                     self.hostList.append(host_id)
                     self.addHost(host_id, **host_opts)
-                    self.addLink(host_id, edge_id, host_port, edge_port, bw=np.random.uniform(bw_low, bw_high))
+                    self.addLink(host_id, edge_id, host_port, edge_port, bw=random.uniform(bw_low, bw_high))
                     edge_port += 1
                 
                 edge_port = 3        
@@ -127,7 +127,7 @@ class FatTreeTopo(Topo):
                     agg_opts = self.def_nopts(self.LAYER_AGG, agg_id)
                     self.aggList.append(agg_id)
                     self.addSwitch(agg_id, **agg_opts)
-                    self.addLink(edge_id, agg_id, edge_port, agg_port, bw=np.random.uniform(bw_low, bw_high))
+                    self.addLink(edge_id, agg_id, edge_port, agg_port, bw=random.uniform(bw_low, bw_high))
                     edge_port += 1
                 agg_port += 1
 
@@ -142,7 +142,7 @@ class FatTreeTopo(Topo):
                     core_opts = self.def_nopts(self.LAYER_CORE, core_id)
                     self.coreList.append(core_id)
                     self.addSwitch(core_id, **core_opts)
-                    self.addLink(core_id, agg_id, p+1, agg_port, bw=np.random.uniform(bw_low, bw_high))
+                    self.addLink(core_id, agg_id, p+1, agg_port, bw=random.uniform(bw_low, bw_high))
                     agg_port += 1
         
         topoG = self.g
