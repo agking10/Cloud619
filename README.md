@@ -34,7 +34,7 @@ In order to create a fat tree topology, run the following command:
 
 At this point, you can use the mininet command line to play with the network.
 
-======Running performance tests===========
+## Running performance tests
 To run our test suite on the ecmp based network, first start an ecmp controller using the steps above (remember, separate window) then run
 
 	sudo sh run_ecmp_tests.sh
@@ -43,4 +43,23 @@ To run the same tests on a wcmp network, start a wcmp controller and run
 
 	sudo sh run_wcmp_tests.sh
 	
+## Debugging
 
+If you try to start a controller and you get an error saying that there is already something listening at port 6633, run the script
+
+	sudo sh find_listener.sh
+
+Which will print a description of the zombie process. Locate the process id and type
+
+	kill <pid>
+
+Where <pid> is replaced with the appropriate pid.
+	
+If mininet is giving an error that says certain switches already exists when you try to create a network, run 
+
+	sudo mn clean -c
+	
+This will clean up any networks that other users forgot to delete.
+
+Enjoy!
+Andrew, Alex, Matt
