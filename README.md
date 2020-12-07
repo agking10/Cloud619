@@ -53,7 +53,7 @@ Which will print a description of the zombie process. Locate the process id and 
 
 	kill <pid>
 
-Where <pid> is replaced with the appropriate pid.
+Where \<pid> is replaced with the appropriate pid.
 	
 If mininet is giving an error that says certain switches already exists when you try to create a network, run 
 
