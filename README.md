@@ -15,7 +15,7 @@ Next, type
 	sudo su -
 	cd Cloud619
 	
-======Running the controller========
+## Starting a controller
 
 To run a controller with ecmp load balancing, run the following command from the Cloud619 directory in a separate window:
 
@@ -27,8 +27,20 @@ To run a controller with wcmp load balancing, run this command:
 
 You must start the controller before building the network.
 
-=======Creating a fat tree network=======
+## Creating a fat tree network
 In order to create a fat tree topology, run the following command:
 
 	sudo sh create_network.sh
+
+At this point, you can use the mininet command line to play with the network.
+
+======Running performance tests===========
+To run our test suite on the ecmp based network, first start an ecmp controller using the steps above (remember, separate window) then run
+
+	sudo sh run_ecmp_tests.sh
+	
+To run the same tests on a wcmp network, start a wcmp controller and run
+
+	sudo sh run_wcmp_tests.sh
+	
 
