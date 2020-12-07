@@ -43,6 +43,8 @@ To run the same tests on a wcmp network, start a wcmp controller and run
 
 	sudo sh run_wcmp_tests.sh
 	
+Each test takes about 20 minutes to run. Note that if you end the tests early you will have to manually clean up the network (see debugging section).
+	
 ## Debugging
 
 If you try to start a controller and you get an error saying that there is already something listening at port 6633, run the script
@@ -62,4 +64,5 @@ If mininet is giving an error that says certain switches already exists when you
 This will clean up any networks that other users forgot to delete.
 
 Enjoy!
-Andrew, Alex, Matt
+
+-Andrew, Alex, Matt
