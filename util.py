@@ -6,6 +6,7 @@ from DCTopo import FatTreeTopo
 from mininet.util import makeNumeric
 from DCRouting import HashedRouting
 from DCRouting import DijkstraRouting
+from DCRouting import WeightedRouting
 
 TOPOS = {'ft': FatTreeTopo}
 ROUTING = {'WCMP' : WeightedRouting,  'ECMP' : HashedRouting, 'dij' : DijkstraRouting}
