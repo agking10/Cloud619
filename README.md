@@ -8,7 +8,7 @@ In order to run this network, you need to have pox installed in the root directo
 	sys.path.append("/root/Cloud619")
 at the top of the file. If you are running this from our server, this has already been done. If you would like the key to the server please email agking10@gmail.com. Once you have the key you can ssh into the server by typing the following command into the terminal:
 
-	ssh -i /path_to_key/TestServerkey.pem ubuntu@3.82.214.17
+	ssh -i /path_to_key/TestServerkey.pem ubuntu@18.232.170.234
 
 Next, type
 
