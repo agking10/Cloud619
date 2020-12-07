@@ -8,7 +8,7 @@ from DCRouting import HashedRouting
 from DCRouting import DijkstraRouting
 
 TOPOS = {'ft': FatTreeTopo}
-ROUTING = {'ECMP' : HashedRouting, 'dij' : DijkstraRouting}
+ROUTING = {'WCMP' : WeightedRouting,  'ECMP' : HashedRouting, 'dij' : DijkstraRouting}
 
 
 def buildTopo(topo):

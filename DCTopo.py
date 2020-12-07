@@ -143,6 +143,18 @@ class FatTreeTopo(Topo):
                     self.addSwitch(core_id, **core_opts)
                     self.addLink(core_id, agg_id, p+1, agg_port, bw=speed)
                     agg_port += 1
+        
+	topoG = self.g
+        graphDic = {}
+	for node in topoG.nodes():
+            graphDic[node] = {}
+
+        for edge in topoG.edges(): # adds each link to each switch
+            graphDic[edge[0]][edge[1]] = 1
+            graphDic[edge[1]][edge[0]] = 1
+
+        self.graphDic = graphDic
+        print(self.graphDic)
         self.create_weights()
         print(self.weights)
 

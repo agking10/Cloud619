@@ -6,6 +6,7 @@ import logging
 from copy import copy
 from Dijkstras import dijkstraHelperFunction
 from Hashed import HashHelperFunction
+from Weighted import WeightedHelperFunction
 
 class Routing(object):
     '''Base class for data center network routing.
@@ -43,6 +44,14 @@ class HashedRouting(Routing):
         ''' Return flow path. '''
         return HashHelperFunction(self.topo,src,dst)
 
+
+class WeightedRouting(Routing):
+
+    def __init__(self, topo):
+        self.topo = topo
+
+    def get_route(self, src, dst):
+        return WeightedHelperFunction(self.topo,src,dst)
         
 
 class DijkstraRouting(Routing):
