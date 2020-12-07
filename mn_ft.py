@@ -66,11 +66,17 @@ parser.add_argument('--tlr',dest='tlr', default=False,
 parser.add_argument('--dijkstra',dest='dij',default=False,
         action='store_true',help='Run the experiment with dijkstra routing')
 
+parser.add_argument('--bwlow', dest='bwlow', type=float, default=1.0,
+        help='bandwidth lower bound')
+
+parser.add_argument('--bwhigh', dest='bwhigh', type=float, default=1.01,
+        help='bandwidth upper bound')
+
 args = parser.parse_args()
 
 
 
-def FatTreeNet(args, k=4, bw=10, cpu=-1, queue=100, controller='DCController'):
+def FatTreeNet(args, k=4, bw_low=1.0, bw_high=1.01, cpu=-1, queue=100, controller='DCController'):
     ''' Create a Fat-Tree network '''
     
 
@@ -83,7 +89,7 @@ def FatTreeNet(args, k=4, bw=10, cpu=-1, queue=100, controller='DCController'):
         info('**error** the routing scheme should be ecmp or dijkstra\n')'''
     
     info('*** Creating the topology')
-    topo = FatTreeTopo(k)
+    topo = FatTreeTopo(k, bw_low=bw_low, bw_high=bw_high)
 
     host = custom(CPULimitedHost, cpu=cpu)
     link = custom(TCLink, bw=bw, max_queue_size=queue)
@@ -150,7 +156,7 @@ def iperfTrafficGen(args, hosts, net):
 
 
 def FatTreeTest(args,controller):
-    net = FatTreeNet(args, k=K, cpu=args.cpu, bw=BW, queue=QUEUE_SIZE,
+    net = FatTreeNet(args, k=K, bw_low = args.bwlow, bw_high = args.bwhigh, cpu=args.cpu, queue=QUEUE_SIZE,
             controller=controller)
     net.start()
 
