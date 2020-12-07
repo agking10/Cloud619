@@ -47,14 +47,18 @@ def WeightedHelperFunction(topo,src,dst):
     agg_layer = topo.layer_nodes(1)
     for switch in topo.graphDic[src].keys():
         if switch in agg_layer:
-            agg_switch.append(switch)
+            for i in range(topo.graphDic[src][switch]):
+                agg_switch.append(switch)
             agg_weights.append(topo.graphDic[src][switch])
+    ind = hash(src + dst) % len(agg_switch)
+    agg_up = agg_switch[ind]
 
-    agg_weights = np.array(agg_weights, dtype = float)
-    agg_weights /= agg_weights.sum()
-    agg_choices = np.arange(len(agg_switch))
-    agg_ind = np.random.choice(agg_choices, 1, p=agg_weights)[0]
-    agg_up = agg_switch[agg_ind]
+
+    #agg_weights = np.array(agg_weights, dtype = float)
+    #agg_weights /= agg_weights.sum()
+    #agg_choices = np.arange(len(agg_switch))
+    #agg_ind = np.random.choice(agg_choices, 1, p=agg_weights)[0]
+    #agg_up = agg_switch[agg_ind]
 
     if (src_split[0] == dst_split[0]):
         remaining = BFS(topo.graphDic, agg_up, dst)
@@ -68,14 +72,19 @@ def WeightedHelperFunction(topo,src,dst):
     core_layer = topo.layer_nodes(0)
     for switch in topo.graphDic[agg_up].keys():
         if switch in core_layer:
-            core_switch.append(switch)
+            for i in range(topo.graphDic[agg_up][switch]):
+                core_switch.append(switch)
             core_weights.append(topo.graphDic[agg_up][switch])
+    ind = hash(agg_up + dst) % len(core_switch)
+    core_up = core_switch[ind]
 
-    core_weights = np.array(core_weights, dtype = float)
-    core_weights /= core_weights.sum()
-    core_choices = np.arange(len(core_switch))
-    core_ind = np.random.choice(core_choices, 1, p=core_weights)[0]
-    core_up = core_switch[core_ind]
+
+
+    #core_weights = np.array(core_weights, dtype = float)
+    #core_weights /= core_weights.sum()
+    #core_choices = np.arange(len(core_switch))
+    #core_ind = np.random.choice(core_choices, 1, p=core_weights)[0]
+    #core_up = core_switch[core_ind]
 
     remaining = BFS(topo.graphDic, core_up, dst)
     path = path + list(remaining)

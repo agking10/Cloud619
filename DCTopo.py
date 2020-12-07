@@ -8,6 +8,7 @@ Fat tree topology for data center networking
 
 from mininet.topo import Topo
 import numpy as np
+import math
 
 class FatTreeNode(object):
     def __init__(self, pod = 0, sw = 0, host = 0, dpid = None, name = None):
@@ -144,15 +145,15 @@ class FatTreeTopo(Topo):
                     self.addLink(core_id, agg_id, p+1, agg_port, bw=np.random.uniform(bw_low, bw_high))
                     agg_port += 1
         
-	topoG = self.g
+        topoG = self.g
         graphDic = {}
-	for node in topoG.nodes():
+        for node in topoG.nodes():
             graphDic[node] = {}
 
         for edge in topoG.edges(): # adds each link to each switch
             weight = self.linkInfo(*edge)['bw']
-            graphDic[edge[0]][edge[1]] = weight
-            graphDic[edge[1]][edge[0]] = weight
+            graphDic[edge[0]][edge[1]] = int(math.ceil(weight))
+            graphDic[edge[1]][edge[0]] = int(math.ceil(weight))
 
         self.graphDic = graphDic
         print(self.graphDic)
@@ -165,7 +166,7 @@ class FatTreeTopo(Topo):
         self.weights = weights
 
     def layer_nodes(self, layer):
-    #return list of node names in specified layer
+    #return list f node names in specified layer
         if(layer == self.LAYER_CORE):
             return self.coreList
         if(layer == self.LAYER_AGG):

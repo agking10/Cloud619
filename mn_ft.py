@@ -92,7 +92,7 @@ def FatTreeNet(args, k=4, bw_low=1.0, bw_high=1.01, cpu=-1, queue=100, controlle
     topo = FatTreeTopo(k, bw_low=bw_low, bw_high=bw_high)
 
     host = custom(CPULimitedHost, cpu=cpu)
-    link = custom(TCLink, bw=bw, max_queue_size=queue)
+    link = custom(TCLink, max_queue_size=queue)
     
     net = Mininet(topo, host=host, link=link, switch=OVSKernelSwitch,
             controller=RemoteController, autoStaticArp=True)

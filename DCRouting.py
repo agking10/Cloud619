@@ -7,6 +7,7 @@ from copy import copy
 from Dijkstras import dijkstraHelperFunction
 from Hashed import HashHelperFunction
 from Weighted import WeightedHelperFunction
+from ECMP import ECMPHelperFunction
 
 class Routing(object):
     '''Base class for data center network routing.
@@ -42,7 +43,7 @@ class HashedRouting(Routing):
 
     def get_route(self, src, dst):
         ''' Return flow path. '''
-        return HashHelperFunction(self.topo,src,dst)
+        return ECMPHelperFunction(self.topo,src,dst)
 
 
 class WeightedRouting(Routing):
