@@ -135,13 +135,15 @@ def iperfTrafficGen(args, hosts, net):
         h1 = s[1] + '_' + s[2] + '_' + s[3]
         h2 = d[1] + '_' + d[2] + '_' + d[3]
 
-        src_host, dest_host = net.get(h1, h2)
-        d_out = dest_host.cmd("iperf -s -p 12345 -t " + str(t) + " &")
-        s_out = src_host.cmd("iperf -c " + dest + " -p 12345 -t " + str(t))
-        dest_host.cmd("pkill iperf")
-        src_host.cmd("pkill iperf")
-        output.write(s_out + '\n')
-        print(h1 + ", " + h2)
+        if h1 in net.nameToNode and h2 in net.nameToNode:
+            src_host, dest_host = net.get(h1, h2)
+            result = net.iperf(hosts=[src_host, dest_host],
+                           l4Type='TCP',
+                           udpBw='{}M'.format(BW),
+                           seconds=t,
+                           port=12345)
+            output.write(result + '\n')
+
     info("Finished\n")
     output.close()
     f.close()
