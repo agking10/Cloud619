@@ -120,7 +120,7 @@ class FatTreeTopo(Topo):
                     self.addLink(host_id, edge_id, host_port, edge_port, bw=random.uniform(bw_low, bw_high))
                     edge_port += 1
                 
-                edge_port = 3        
+                edge_port = k // 2 + 1        
 
                 for a in agg_sws:
                     agg_id = self.id_gen(p, a, 1).name_str()
@@ -134,7 +134,7 @@ class FatTreeTopo(Topo):
             
             print("")
             for a in agg_sws:
-                agg_port = 3
+                agg_port = k // 2 + 1
                 agg_id = self.id_gen(p, a, 1).name_str()
                 c_index = a - k // 2 + 1
                 for c in core_sws:
@@ -223,26 +223,29 @@ class FatTreeTopo(Topo):
         src_id = self.id_gen(name = src)
         dst_id = self.id_gen(name = dst)
 
+        src_split = src.split("_")
+        dst_split = dst.split("_")
+
         if src_layer == LAYER_HOST and dst_layer == LAYER_EDGE:
             src_port = 1
-            dst_port = int(src[4])-1
+            dst_port = int(src_split[2])-1
         elif src_layer == LAYER_EDGE and dst_layer == LAYER_HOST:
-            src_port = int(dst[4])-1
+            src_port = int(dst_split[2])-1
             dst_port = 1
 
         elif src_layer == LAYER_EDGE and dst_layer == LAYER_AGG:
-            src_port = int(dst[2])+1
-            dst_port = int(src[2])+1
+            src_port = int(dst_split[1])+1
+            dst_port = int(src_split[1])+1
         elif src_layer == LAYER_AGG and dst_layer == LAYER_EDGE:
-            src_port = int(dst[2])+1
-            dst_port = int(src[2])+1
+            src_port = int(dst_split[1])+1
+            dst_port = int(src_split[1])+1
 
         elif src_layer == LAYER_AGG and dst_layer == LAYER_CORE:
-            src_port = int(dst[4])+2
-            dst_port = int(src[0])+1
+            src_port = int(dst_split[2])+2
+            dst_port = int(src_split[0])+1
         elif src_layer == LAYER_CORE and dst_layer == LAYER_AGG:
-            src_port = int(dst[0])+1
-            dst_port = int(src[4])+2
+            src_port = int(dst_split[0])+1
+            dst_port = int(src_split[2])+2
 
         else:
             raise Exception("Could not find port leading to given dst switch")
@@ -251,4 +254,4 @@ class FatTreeTopo(Topo):
         return (src_port, dst_port)
     
   
-topos = {"ft" : ( lambda: FatTreeTopo() )}
+topos = {"ft" : ( lambda: FatTreeTopo(k = 4) )}

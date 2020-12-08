@@ -17,17 +17,17 @@ def HashHelperFunction(topo,src,dst):
     # create list of core switches
     core_switch_list = []
     for node in topoG.nodes():
-        if(node[0]=='4'):
+        if(int(node.split("_")[0]) == k):
         	core_switch_list.append(node)
     
     # finds bucket for given src,dst pair
     flowHash = hash(src+dst)
-    bucket_num = flowHash%4
+    bucket_num = flowHash % k
     #print 'bucket_num: ' + str(bucket_num)
 
     graphDic = {} #empty dictionary
     for node in topoG.nodes(): # make empty switch dictionary without unwanted core switches
-        if(node[0] =='4'):
+        if(int(node.split("_")[0]) == k):
             if(node == core_switch_list[bucket_num]):
                 graphDic[node] = {}
         else:
