@@ -1,1 +1,1 @@
-sudo python ~/pox/pox.py DCController --topo=ft,4 --routing=WCMP
+sudo python ~/pox/pox.py DCController --topo=ft,6 --routing=ECMP

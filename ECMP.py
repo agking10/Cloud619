@@ -25,59 +25,69 @@ def ECMPHelperFunction(topo,src,dst):
     k = topo.k
 
     # create list of core switches
-    core_switch_list = []
-    for node in topoG.nodes():
-        if(int(node.split("_")[0]) == k):
-        	core_switch_list.append(node)
     
     # finds bucket for given src,dst pair
-    flowHash = hash(src+dst)
-    bucket_num = flowHash % k
-
-    src_split = src.split("_")
-    dst_split = dst.split("_")
 
     path = [src]
 
     if (src == dst):
         return path
 
-    first = src
     if (src in topo.layer_nodes(3)):
-        path.append(topo.graphDic[src].keys()[0])
-        first = path[1]
-        if (dst in topo.graphDic[first].keys()):
-            path.append(dst)
-            return path
+        return pathFromHost(src, dst, path, topo)
+    elif (src in topo.layer_nodes(2)):
+        return pathFromEdge(src, dst, path, topo)
+    elif (src in topo.layer_nodes(1)):
+        return pathFromAgg(src, dst, path, topo)
+    elif (src in topo.layer_nodes(0)):
+        return pathFromCore(src, dst, path, topo)
+    return None
 
+def pathFromHost(src, dst, path, topo):
+    path.append(topo.graphDic[src].keys()[0])
+    edge = path[1]
+    return pathFromEdge(edge, dst, path, topo)
+
+def pathFromEdge(src, dst, path, topo):
+    if (dst in topo.graphDic[src].keys()):
+        path.append(dst)
+        return path
     agg_switch = []
     agg_weights = []
     agg_layer = topo.layer_nodes(1)
-    for switch in topo.graphDic[first].keys():
+    for switch in topo.graphDic[src].keys():
         if switch in agg_layer:
             agg_switch.append(switch)
-    ind = hash(first + dst) % len(agg_switch)
-    agg_up = agg_switch[ind]
+    ind = hash(src + dst) % len(agg_switch)
+    agg = agg_switch[ind]
+    path.append(agg)
+    return pathFromAgg(agg, dst, path, topo)
 
-    if (src_split[0] == dst_split[0]):
-        remaining = BFS(topo.graphDic, agg_up, dst)
-        path = path + list(remaining)
-        return path #DPIDPath(topo, path)
 
-    path.append(agg_up)
+def pathFromAgg(src, dst, path, topo):
+    src_pod = src.split("_")[0]
+    dst_pod = dst.split("_")[0]
+    if (src_pod == dst_pod):
+        remaining = BFS(topo.graphDic, src, dst)
+        path = path + list(remaining)[1:]
+        return path
 
     core_switch = []
     core_weights = []
     core_layer = topo.layer_nodes(0)
-    for switch in topo.graphDic[agg_up].keys():
+    for switch in topo.graphDic[src].keys():
         if switch in core_layer:
             core_switch.append(switch)
-    ind = hash(agg_up + dst) % len(core_switch)
-    core_up = core_switch[ind]
+    ind = hash(src + dst) % len(core_switch)
+    core = core_switch[ind]
+    path.append(core)
+    return pathFromCore(core, dst, path, topo)
 
-    remaining = BFS(topo.graphDic, core_up, dst)
-    path = path + list(remaining)
-    return path #DPIDPaht(topo, path)
+
+def pathFromCore(src, dst, path, topo):
+    remaining = BFS(topo.graphDic, src, dst)
+    path = path + list(remaining)[1:]
+    return path
 
     
 class Node():

@@ -199,7 +199,7 @@ class DCController(EventMixin):
         
     def _handle_packet_proactive(self, event):
         packet = event.parse()
-        self._flood(event)
+        #self._flood(event)
 
         if packet.dst.is_multicast:
             self._flood(event)
@@ -237,7 +237,7 @@ class DCController(EventMixin):
             log.info("All of the switches are up")
             self.all_switches_up = True
             if self.mode == 'proactive':
-                self._install_proactive_flows()
+                self._install_proactive_flows_alt()
                 log.info("Routing is complete")
 
     def _install_proactive_flows(self):
@@ -248,6 +248,37 @@ class DCController(EventMixin):
                     continue
                 self._install_proactive_path(src, dst)
 
+    def _install_proactive_flows_alt(self):
+        t = self.t
+        for src in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_EDGE))):
+            for dst in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_HOST))):
+                self._install_proactive_path_single(src, dst)
+
+        for src in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_AGG))):
+            for dst in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_HOST))):
+                self._install_proactive_path_single(src, dst)
+
+        for src in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_CORE))):
+            for dst in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_HOST))):
+                self._install_proactive_path_single(src, dst)
+
+
+    def _install_proactive_path_single(self, src, dst):
+        src_sw = self.t.id_gen(dpid = src)
+        src_sw_name = src_sw.name_str()
+        dst_sw = self.t.id_gen(dpid = dst)
+        dst_sw_name = dst_sw.name_str()
+        route = self.r.get_route(src_sw_name, dst_sw_name)
+   
+        match = of.ofp_match()
+        match.dl_dst = EthAddr(dst_sw.mac_str()).toRaw()
+
+        node_dpid = self.t.id_gen(name = route[0]).dpid
+        next_node = route[1]
+        out_port, next_in_port = self.t.port(route[0], next_node)
+        self.switches[node_dpid].install(out_port, match)
+ 
+
     def _install_proactive_path(self, src, dst):
         """Install entries on route between two hosts based on MAC addrs.
     
@@ -257,7 +288,6 @@ class DCController(EventMixin):
         src_sw_name = src_sw.name_str()
         dst_sw = self.t.id_gen(dpid = dst)
         dst_sw_name = dst_sw.name_str()
-        hash_ = self._src_dst_hash(src, dst)
         route = self.r.get_route(src_sw_name, dst_sw_name)
 
         # Form OF match
@@ -265,9 +295,6 @@ class DCController(EventMixin):
         match.dl_src = EthAddr(src_sw.mac_str()).toRaw()
         match.dl_dst = EthAddr(dst_sw.mac_str()).toRaw()
 
-
-        dst_host_name = self.t.id_gen(dpid = dst).name_str()
-        # final_out_port, ignore = self.t.port(route[-1], dst_sw_name)
         for i in range(1, len(route) - 1):
             node_dpid = self.t.id_gen(name = route[i]).dpid
             next_node = route[i + 1]

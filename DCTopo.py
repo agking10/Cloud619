@@ -259,4 +259,4 @@ class FatTreeTopo(Topo):
         return (src_port, dst_port)
     
   
-topos = {"ft" : ( lambda: FatTreeTopo(k = 4) )}
+topos = {"ft" : ( lambda: FatTreeTopo(k = 6) )}
