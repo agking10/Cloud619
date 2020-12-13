@@ -18,6 +18,7 @@ from pox.lib.recoco import Timer
 from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.udp import udp
 from pox.lib.packet.tcp import tcp
+from pox.lib.addresses import EthAddr
 
 from util import buildTopo, getRouting
 from Hashed import HashHelperFunction
@@ -80,6 +81,7 @@ class DCController(EventMixin):
         self.macTable = {}  # [mac]->(dpid, port) a distributed MAC table
         self.t = t          # Topo object
         self.r = r          # Routng object
+        self.mode = 'proactive'
         self.all_switches_up = False
         core.openflow.addListeners(self)
 
@@ -140,7 +142,6 @@ class DCController(EventMixin):
         out_name = self.t.id_gen(dpid = out_dpid).name_str()
         # hash_ = self._ecmp_hash(packet)
         route = self.r.get_route(in_name, out_name)
-        
         match = of.ofp_match.from_packet(packet)
         for i, node in enumerate(route):
             node_dpid = self.t.id_gen(name = node).dpid
@@ -155,9 +156,18 @@ class DCController(EventMixin):
         pass
 
     def _handle_PacketIn(self, event):
-
-        if self.all_switches_up == False:
+        if not self.all_switches_up:
+            log.info("Saw PacketIn before all switches were up - ignoring.")
             return
+        else:
+            if self.mode == 'reactive':
+                self._handle_packet_reactive(event)
+            elif self.mode == 'proactive':
+                self._handle_packet_proactive(event)
+
+
+
+    def _handle_packet_reactive(self, event):
         packet = event.parsed
         dpid = event.dpid
         in_port = event.port       
@@ -187,7 +197,19 @@ class DCController(EventMixin):
         else:
             self._flood(event)
         
+    def _handle_packet_proactive(self, event):
+        packet = event.parse()
+        self._flood(event)
 
+        if packet.dst.is_multicast:
+            self._flood(event)
+        else:
+            hosts = self._raw_dpids(self.t.layer_nodes(self.t.LAYER_HOST))
+            if self.t.id_gen(mac = packet.src.toStr()).dpid not in hosts:
+                raise Exception("unrecognized src: %s" % packet.src)
+            if self.t.id_gen(mac = packet.dst.toStr()).dpid not in hosts:
+                raise Exception("unrecognized dst: %s" % packet.dst)
+            raise Exception("known host MACs but entries weren't pushed down?!?")
 
 
     def _handle_ConnectionUp(self, event):
@@ -214,6 +236,48 @@ class DCController(EventMixin):
         if len(self.switches)==len(self.t.switches()):
             log.info("All of the switches are up")
             self.all_switches_up = True
+            if self.mode == 'proactive':
+                self._install_proactive_flows()
+                log.info("Routing is complete")
+
+    def _install_proactive_flows(self):
+        t = self.t
+        for src in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_HOST))):
+            for dst in sorted(self._raw_dpids(t.layer_nodes(t.LAYER_HOST))):
+                if (src == dst):
+                    continue
+                self._install_proactive_path(src, dst)
+
+    def _install_proactive_path(self, src, dst):
+        """Install entries on route between two hosts based on MAC addrs.
+    
+        src and dst are unsigned ints.
+        """
+        src_sw = self.t.id_gen(dpid = src)
+        src_sw_name = src_sw.name_str()
+        dst_sw = self.t.id_gen(dpid = dst)
+        dst_sw_name = dst_sw.name_str()
+        hash_ = self._src_dst_hash(src, dst)
+        route = self.r.get_route(src_sw_name, dst_sw_name)
+
+        # Form OF match
+        match = of.ofp_match()
+        match.dl_src = EthAddr(src_sw.mac_str()).toRaw()
+        match.dl_dst = EthAddr(dst_sw.mac_str()).toRaw()
+
+
+        dst_host_name = self.t.id_gen(dpid = dst).name_str()
+        # final_out_port, ignore = self.t.port(route[-1], dst_sw_name)
+        for i in range(1, len(route) - 1):
+            node_dpid = self.t.id_gen(name = route[i]).dpid
+            next_node = route[i + 1]
+            out_port, next_in_port = self.t.port(route[i], next_node)
+            self.switches[node_dpid].install(out_port, match)
+
+    def _src_dst_hash(self, src_dpid, dst_dpid):
+        "Return a hash based on src and dst dpids."
+        return crc32(pack('QQ', src_dpid, dst_dpid))
+
 
 def launch(topo = None, routing = None):
     if not topo:

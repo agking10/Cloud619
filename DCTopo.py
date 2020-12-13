@@ -11,7 +11,7 @@ import math
 import random
 
 class FatTreeNode(object):
-    def __init__(self, pod = 0, sw = 0, host = 0, dpid = None, name = None):
+    def __init__(self, pod = 0, sw = 0, host = 0, dpid = None, name = None, mac = None):
         '''Create FatTreeNodeID object from custom params.
 
         Either (pod, sw, host) or dpid must be passed in.
@@ -29,6 +29,12 @@ class FatTreeNode(object):
             self.dpid = dpid
         elif name:
             pod, sw, host = [int(s) for s in name.split('_')]
+            self.pod = pod
+            self.sw = sw
+            self.host = host
+            self.dpid = (pod << 16) + (sw << 8) + host
+        elif mac:
+            pod, sw, host = [int(s) for s in mac.split(':')[3:]]
             self.pod = pod
             self.sw = sw
             self.host = host
@@ -218,7 +224,6 @@ class FatTreeTopo(Topo):
             dst_layer = LAYER_EDGE
         if dst in self.hostList:
             dst_layer = LAYER_HOST
-
 
         src_id = self.id_gen(name = src)
         dst_id = self.id_gen(name = dst)

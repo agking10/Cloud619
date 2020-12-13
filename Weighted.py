@@ -42,15 +42,23 @@ def WeightedHelperFunction(topo,src,dst):
     if (src == dst):
         return path
 
+    first = src
+    if (src in topo.layer_nodes(3)):
+        path.append(topo.graphDic[src].keys()[0])
+        first = path[1]
+        if (dst in topo.graphDic[first].keys()):
+            path.append(dst)
+            return path
+
     agg_switch = []
     agg_weights = []
     agg_layer = topo.layer_nodes(1)
-    for switch in topo.graphDic[src].keys():
+    for switch in topo.graphDic[first].keys():
         if switch in agg_layer:
-            for i in range(topo.graphDic[src][switch]):
+            for i in range(topo.graphDic[first][switch]):
                 agg_switch.append(switch)
-            agg_weights.append(topo.graphDic[src][switch])
-    ind = hash(src + dst) % len(agg_switch)
+            agg_weights.append(topo.graphDic[first][switch])
+    ind = hash(first + dst) % len(agg_switch)
     agg_up = agg_switch[ind]
 
 

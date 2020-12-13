@@ -42,17 +42,21 @@ def ECMPHelperFunction(topo,src,dst):
     if (src == dst):
         return path
 
+    first = src
+    if (src in topo.layer_nodes(3)):
+        path.append(topo.graphDic[src].keys()[0])
+        first = path[1]
+        if (dst in topo.graphDic[first].keys()):
+            path.append(dst)
+            return path
+
     agg_switch = []
     agg_weights = []
     agg_layer = topo.layer_nodes(1)
-    for switch in topo.graphDic[src].keys():
+    for switch in topo.graphDic[first].keys():
         if switch in agg_layer:
             agg_switch.append(switch)
-    if len(agg_switch) == 0:
-        print src 
-        print(agg_layer)
-        print(topo.graphDic[src].keys())
-    ind = hash(src + dst) % len(agg_switch)
+    ind = hash(first + dst) % len(agg_switch)
     agg_up = agg_switch[ind]
 
     if (src_split[0] == dst_split[0]):
