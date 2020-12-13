@@ -21,8 +21,6 @@ def ECMPHelperFunction(topo,src,dst):
     '''
     #print 'src: ' + src
     #print 'dst: ' + dst
-    topoG = topo.g
-    k = topo.k
 
     # create list of core switches
     

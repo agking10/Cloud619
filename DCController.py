@@ -18,7 +18,7 @@ from pox.lib.recoco import Timer
 from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.udp import udp
 from pox.lib.packet.tcp import tcp
-from pox.lib.addresses import EthAddr
+from pox.lib.addresses import EthAddr, IPAddr
 
 from util import buildTopo, getRouting
 from Hashed import HashHelperFunction
@@ -55,6 +55,7 @@ class Switch(EventMixin):
                         
     def install(self, port, match, modify = False, buf = -1, idle_timeout = 0, hard_timeout = 0):
         msg = of.ofp_flow_mod()
+        msg.priority = 42
         msg.match = match
         if modify:
             msg.command = of.OFPFC_MODIFY_STRICT
@@ -200,7 +201,6 @@ class DCController(EventMixin):
     def _handle_packet_proactive(self, event):
         packet = event.parse()
         #self._flood(event)
-
         if packet.dst.is_multicast:
             self._flood(event)
         else:
@@ -235,10 +235,10 @@ class DCController(EventMixin):
 
         if len(self.switches)==len(self.t.switches()):
             log.info("All of the switches are up")
-            self.all_switches_up = True
             if self.mode == 'proactive':
-                self._install_proactive_flows_alt()
-                log.info("Routing is complete")
+                self._install_proactive_flows()
+                log.info("Routing is complete") 
+            self.all_switches_up = True
 
     def _install_proactive_flows(self):
         t = self.t
@@ -272,11 +272,14 @@ class DCController(EventMixin):
    
         match = of.ofp_match()
         match.dl_dst = EthAddr(dst_sw.mac_str()).toRaw()
+#        match.dl_type = 0x800
+#        match.set_nw_dst(IPAddr(dst_sw.ip_str()), 32)
+#        match.tp_dst = 80
 
         node_dpid = self.t.id_gen(name = route[0]).dpid
         next_node = route[1]
         out_port, next_in_port = self.t.port(route[0], next_node)
-        self.switches[node_dpid].install(out_port, match)
+        self.switches[node_dpid].install(next_in_port, match)
  
 
     def _install_proactive_path(self, src, dst):
@@ -292,8 +295,12 @@ class DCController(EventMixin):
 
         # Form OF match
         match = of.ofp_match()
+
+        #match.dl_type = 0x800
         match.dl_src = EthAddr(src_sw.mac_str()).toRaw()
         match.dl_dst = EthAddr(dst_sw.mac_str()).toRaw()
+        #match.set_nw_src(IPAddr(src_sw.ip_str()), 32)
+        #match.set_nw_dst(IPAddr(dst_sw.ip_str()), 32)
 
         for i in range(1, len(route) - 1):
             node_dpid = self.t.id_gen(name = route[i]).dpid
