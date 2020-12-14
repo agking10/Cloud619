@@ -108,6 +108,8 @@ class FatTreeTopo(Topo):
         host_port = 1
         
         random.seed(0)
+
+	self.ports = {}
       
         for p in pods:
             agg_port = 1
@@ -118,22 +120,33 @@ class FatTreeTopo(Topo):
                 self.edgeList.append(edge_id)
                 self.addSwitch(edge_id, **edge_opts)
                 
+                if (edge_id not in self.ports.keys()):
+                    self.ports[edge_id] = {}
+
                 for h in hosts:
                     host_id = self.id_gen(p, e, h).name_str()
+                    if (host_id not in self.ports.keys()):
+                        self.ports[host_id] = {}
                     host_opts = self.def_nopts(self.LAYER_HOST, host_id)
                     self.hostList.append(host_id)
                     self.addHost(host_id, **host_opts)
                     self.addLink(host_id, edge_id, host_port, edge_port, bw=random.uniform(bw_low, bw_high))
+                    self.ports[host_id][edge_id] = host_port
+                    self.ports[edge_id][host_id] = edge_port
                     edge_port += 1
                 
                 edge_port = k // 2 + 1        
 
                 for a in agg_sws:
                     agg_id = self.id_gen(p, a, 1).name_str()
+                    if (agg_id not in self.ports.keys()):
+                        self.ports[agg_id] = {}
                     agg_opts = self.def_nopts(self.LAYER_AGG, agg_id)
                     self.aggList.append(agg_id)
                     self.addSwitch(agg_id, **agg_opts)
                     self.addLink(edge_id, agg_id, edge_port, agg_port, bw=random.uniform(bw_low, bw_high))
+                    self.ports[edge_id][agg_id] = edge_port
+                    self.ports[agg_id][edge_id] = agg_port
                     edge_port += 1
                 agg_port += 1
 
@@ -145,10 +158,14 @@ class FatTreeTopo(Topo):
                 c_index = a - k // 2 + 1
                 for c in core_sws:
                     core_id = self.id_gen(k, c_index, c).name_str()
+                    if (core_id not in self.ports.keys()):
+                        self.ports[core_id] = {}
                     core_opts = self.def_nopts(self.LAYER_CORE, core_id)
                     self.coreList.append(core_id)
                     self.addSwitch(core_id, **core_opts)
-                    self.addLink(core_id, agg_id, p+1, agg_port, bw=random.uniform(bw_low, bw_high))
+                    self.addLink(core_id, agg_id, p + 1, agg_port, bw=random.uniform(bw_low, bw_high))
+                    self.ports[core_id][agg_id] = p + 1
+                    self.ports[agg_id][core_id] = agg_port
                     agg_port += 1
         
         topoG = self.g
@@ -163,6 +180,7 @@ class FatTreeTopo(Topo):
 
         self.graphDic = graphDic
         print(self.graphDic)
+        print(self.ports)
 
     def create_weights(self):
         weights = {}
@@ -200,6 +218,10 @@ class FatTreeTopo(Topo):
         #src_id = self.id_gen(name = src)
         #dst_id = self.id_gen(name = dst)
 
+        src_port = self.ports[src][dst]
+        dst_port = self.ports[dst][src]
+        return (src_port, dst_port)
+        '''
         LAYER_CORE = 0
         LAYER_AGG = 1
         LAYER_EDGE = 2
@@ -224,6 +246,9 @@ class FatTreeTopo(Topo):
             dst_layer = LAYER_EDGE
         if dst in self.hostList:
             dst_layer = LAYER_HOST
+
+	src_port = self.ports[src][dst]
+        dst_port = self.ports[dst][src]
 
         src_id = self.id_gen(name = src)
         dst_id = self.id_gen(name = dst)
@@ -257,6 +282,6 @@ class FatTreeTopo(Topo):
 
 
         return (src_port, dst_port)
-    
+        '''
   
 topos = {"ft" : ( lambda: FatTreeTopo(k = 4) )}

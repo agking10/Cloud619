@@ -55,7 +55,7 @@ class Switch(EventMixin):
                         
     def install(self, port, match, modify = False, buf = -1, idle_timeout = 0, hard_timeout = 0):
         msg = of.ofp_flow_mod()
-        msg.priority = 42
+        #msg.priority = 42
         msg.match = match
         if modify:
             msg.command = of.OFPFC_MODIFY_STRICT
